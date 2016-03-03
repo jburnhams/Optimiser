@@ -127,7 +127,7 @@ public class Solution<T> extends AbstractList<T> implements Cloneable {
     @Override
     public String toString() {
         return "Solution{" +
-                "solution=" + Arrays.toString(solution) +
+                "solution=" + (solution.length < 100 ? Arrays.toString(solution) : size()) +
                 '}';
     }
 }

@@ -1,36 +1,32 @@
 package org.burnhams.optimiser.evaluators;
 
+import org.burnhams.imaging.SimpleImage;
+import org.burnhams.optimiser.Evaluator;
 import org.burnhams.utils.ColourUtils;
 
-public class TargetImageEvaluator {
+public class TargetImageEvaluator implements Evaluator<SimpleImage> {
 
-    private final int[][] targetImage;
-    private final int width, height;
     private final ColourUtils.ComparisonMethod comparisonMethod = ColourUtils.ComparisonMethod.RGB_DISTANCE;
 
-    public TargetImageEvaluator(int[][] targetImage) {
+    private final SimpleImage targetImage;
+
+    public TargetImageEvaluator(SimpleImage targetImage) {
         this.targetImage = targetImage;
-        this.width = targetImage.length;
-        this.height = targetImage[0].length;
     }
 
 
-    public double getDiff() {
-        int tiles = 0;
+    @Override
+    public double evaluate(SimpleImage solutionOutput) {
         double total = 0;
-       /* for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                TileType t = getTile(x, y);
-                if (t != null) {
-                    total += t.getColour().getDiff(sourceImage[x][y]);
-                    tiles++;
-                }
+        for (int x = 0; x < targetImage.getWidth(); x++) {
+            for (int y = 0; y < targetImage.getHeight(); y++) {
+                int target = targetImage.getPixel(x, y);
+                int input = solutionOutput.getPixel(x, y);
+                total += ColourUtils.getDiff(comparisonMethod, target, input);
             }
-        }         */
-        return tiles == 0 ? 0 : (total / tiles);
+        }
+        return total / (targetImage.getWidth() * targetImage.getHeight());
     }
-
-
 }
 
 

@@ -3,9 +3,9 @@ package org.burnhams.optimiser.algorithms;
 import org.apache.log4j.Logger;
 import org.burnhams.optimiser.Configuration;
 import org.burnhams.optimiser.Evaluator;
+import org.burnhams.optimiser.converters.SolutionConverter;
 import org.burnhams.optimiser.neighbourhood.NeighbourhoodFunction;
 import org.burnhams.optimiser.solutions.Solution;
-import org.burnhams.optimiser.solutions.SolutionConverter;
 import org.burnhams.optimiser.solutions.SolutionResult;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class HillClimber<T, U> extends Optimiser<T, U> {
     }
 
     public HillClimber(Evaluator<U> evaluator, SolutionConverter<T, U> solutionConverter, Configuration configuration, NeighbourhoodFunction<T> neighbourhoodFunctions) {
-        this(evaluator, solutionConverter, configuration, configuration.getHillClimbChoices(), configuration.getHillClimbMaxNonImprovingMoves(), neighbourhoodFunctions);
+        this(evaluator, solutionConverter, configuration, configuration.getHillClimbChoices(), configuration.getMaxNonImprovingMoves(), neighbourhoodFunctions);
     }
 
     public SolutionResult<T, U> optimise(Solution<T> candidate) {
@@ -86,7 +86,6 @@ public class HillClimber<T, U> extends Optimiser<T, U> {
             Solution<T> neighbour = getNeighbour(candidate);
             SolutionResult<T, U> newResult = evaluate(neighbour);
             double newCost = newResult.getCost();
-            logger.debug("Choice " + i + " for " + neighbour + " has cost " + newCost);
             if (newCost < bestCost) {
                 bestCost = newCost;
                 best = newResult;

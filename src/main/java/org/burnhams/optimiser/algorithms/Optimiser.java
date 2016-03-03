@@ -3,10 +3,10 @@ package org.burnhams.optimiser.algorithms;
 import org.apache.log4j.Logger;
 import org.burnhams.optimiser.Configuration;
 import org.burnhams.optimiser.Evaluator;
+import org.burnhams.optimiser.converters.SolutionConverter;
 import org.burnhams.optimiser.neighbourhood.NeighbourhoodFunction;
 import org.burnhams.optimiser.neighbourhood.RandomSwapNeighbour;
 import org.burnhams.optimiser.solutions.Solution;
-import org.burnhams.optimiser.solutions.SolutionConverter;
 import org.burnhams.optimiser.solutions.SolutionResult;
 
 import java.util.Collection;
@@ -62,23 +62,6 @@ public abstract class Optimiser<T, U> {
         return best;
     }
 
-    public static <T, U> SolutionResult<T, U> getBestFromFutures(Evaluator<U> evaluator, SolutionConverter<T, U> solutionConverter, Collection<Future<Solution<T>>> futureList) {
-        safeGet(futureList.iterator().next());
-
-        SolutionResult<T, U> best = null;
-        double bestCost = -1;
-        for (Future<Solution<T>> future : futureList) {
-            Solution<T> solution = safeGet(future);
-            U solutionOutput = solutionConverter.convert(solution);
-            double newCost = evaluator.evaluate(solutionOutput);
-            if (best == null || newCost < bestCost) {
-                bestCost = newCost;
-                best = new SolutionResult<>(solution, solutionOutput, newCost);
-            }
-        }
-        return best;
-    }
-
     public abstract SolutionResult<T, U> optimise(Solution<T> candidate);
 
 
@@ -86,10 +69,6 @@ public abstract class Optimiser<T, U> {
         U solutionOutput = solutionConverter.convert(solution);
         double cost = evaluator.evaluate(solutionOutput);
         return new SolutionResult<>(solution, solutionOutput, cost);
-    }
-
-    protected double evaluate(U solutionOutput) {
-        return evaluator.evaluate(solutionOutput);
     }
 
     protected Solution<T> getNeighbour(Solution<T> candidate) {

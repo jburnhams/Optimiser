@@ -6,9 +6,13 @@ public interface Configuration {
 
     public double getStartingTemperature();
 
+    public double getEndingTemperature();
+
     public long getMaxIterations();
+
+    public boolean isAllowExtraTimeForImprovement();
 
     public int getHillClimbChoices();
 
-    public int getHillClimbMaxNonImprovingMoves();
+    public int getMaxNonImprovingMoves();
 }

@@ -32,14 +32,14 @@ public class ColourUtils {
         return Math.sqrt((((512 + rmean) * r * r) >> 8) + 4 * g * g + (((767 - rmean) * b * b) >> 8));
     }
 
-    public int[] getRGBFromInt(int input) {
+    public static int[] getRGBFromInt(int input) {
         int r2 = (input >> 16) & 0xFF;
         int g2 = (input >> 8) & 0xFF;
         int b2 = input & 0xFF;
         return new int[]{r2, g2, b2};
     }
 
-    public double getDiff(ComparisonMethod method, int r1, int r2, int g1, int g2, int b1, int b2) {
+    public static double getDiff(ComparisonMethod method, int r1, int r2, int g1, int g2, int b1, int b2) {
         switch (method) {
             case RGB:
                 return getDiff(r1, r2, g1, g2, b1, b2);
@@ -51,6 +51,16 @@ public class ColourUtils {
                 return getDiff(r2, g2, b2, Color.RGBtoHSB(r1, g1, b1, null));
         }
         return -1;
+    }
+
+    public static double getDiff(ComparisonMethod comparisonMethod, int rgb1, int rgb2) {
+        int r1 = (rgb1 >> 16) & 0xFF;
+        int g1 = (rgb1 >> 8) & 0xFF;
+        int b1 = rgb1 & 0xFF;
+        int r2 = (rgb2 >> 16) & 0xFF;
+        int g2 = (rgb2 >> 8) & 0xFF;
+        int b2 = rgb2 & 0xFF;
+        return getDiff(comparisonMethod, r1, r2, g1, g2, b1, b2);
     }
 
     public enum ComparisonMethod {

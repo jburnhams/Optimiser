@@ -23,4 +23,11 @@ public class SolutionResult<T, U> {
     public double getCost() {
         return cost;
     }
+
+    @Override
+    public String toString() {
+        return "SolutionResult{" +
+                "cost=" + cost +
+                '}';
+    }
 }

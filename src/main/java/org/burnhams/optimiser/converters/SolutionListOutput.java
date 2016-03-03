@@ -1,4 +1,6 @@
-package org.burnhams.optimiser.solutions;
+package org.burnhams.optimiser.converters;
+
+import org.burnhams.optimiser.solutions.Solution;
 
 import java.util.List;
 

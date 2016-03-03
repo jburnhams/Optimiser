@@ -5,10 +5,10 @@ import org.apache.log4j.Logger;
 import org.burnhams.optimiser.algorithms.HillClimber;
 import org.burnhams.optimiser.algorithms.Optimiser;
 import org.burnhams.optimiser.algorithms.SimulatedAnnealing;
+import org.burnhams.optimiser.converters.SolutionListOutput;
 import org.burnhams.optimiser.evaluators.TargetStringEvaluator;
 import org.burnhams.optimiser.neighbourhood.RandomSwapNeighbour;
 import org.burnhams.optimiser.solutions.Solution;
-import org.burnhams.optimiser.solutions.SolutionListOutput;
 import org.burnhams.optimiser.solutions.SolutionResult;
 import org.junit.Test;
 
@@ -24,31 +24,7 @@ public class StringOptimiserTest {
     private static Logger logger = Logger.getLogger(StringOptimiserTest.class);
     private final SolutionListOutput<Character> solutionListOutput = new SolutionListOutput<>();
     private final TargetStringEvaluator targetStringEvaluator = new TargetStringEvaluator(HELLO_WORLD);
-    private Configuration configuration = new Configuration() {
-        @Override
-        public long getMaxIterations() {
-            return 10000;
-        }
-
-        @Override
-        public int getThreads() {
-            return 1;
-        }
-
-        public double getStartingTemperature() {
-            return 100;
-        }
-
-        @Override
-        public int getHillClimbChoices() {
-            return 100;
-        }
-
-        @Override
-        public int getHillClimbMaxNonImprovingMoves() {
-            return 5;
-        }
-    };
+    private Configuration configuration = new TestConfiguration();
     private final RandomSwapNeighbour<Character> neighbour = new RandomSwapNeighbour<>(configuration);
 
     public static List<Character> stringToList(String input) {
