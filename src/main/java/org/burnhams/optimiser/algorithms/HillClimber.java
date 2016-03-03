@@ -3,9 +3,10 @@ package org.burnhams.optimiser.algorithms;
 import org.apache.log4j.Logger;
 import org.burnhams.optimiser.Configuration;
 import org.burnhams.optimiser.Evaluator;
-import org.burnhams.optimiser.PreEvaluatable;
-import org.burnhams.optimiser.Solution;
 import org.burnhams.optimiser.neighbourhood.NeighbourhoodFunction;
+import org.burnhams.optimiser.solutions.Solution;
+import org.burnhams.optimiser.solutions.SolutionConverter;
+import org.burnhams.optimiser.solutions.SolutionResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.concurrent.Future;
 
 import static org.burnhams.utils.StringUtils.twoSf;
 
-public class HillClimber<T, U extends Solution<T>> extends Optimiser<T, U> {
+public class HillClimber<T, U> extends Optimiser<T, U> {
 
     private static Logger logger = Logger.getLogger(HillClimber.class);
 
@@ -28,77 +29,70 @@ public class HillClimber<T, U extends Solution<T>> extends Optimiser<T, U> {
 
     private ExecutorService executorService;
 
-    public HillClimber(Evaluator<T, U> evaluator, Configuration configuration, int choices, int maxNonImprovingMoves, NeighbourhoodFunction<T, U>... neighbourhoodFunctions) {
-        super(configuration, evaluator, neighbourhoodFunctions);
+    public HillClimber(Evaluator<U> evaluator, SolutionConverter<T, U> solutionConverter, Configuration configuration, int choices, int maxNonImprovingMoves, NeighbourhoodFunction<T> neighbourhoodFunctions) {
+        super(configuration, evaluator, solutionConverter, neighbourhoodFunctions);
         this.choices = choices;
         this.maxNonImprovingMoves = maxNonImprovingMoves;
         threads = configuration.getThreads();
     }
 
-    public HillClimber(Evaluator<T, U> evaluator, Configuration configuration, NeighbourhoodFunction<T, U>... neighbourhoodFunctions) {
-        this(evaluator, configuration, configuration.getHillClimbChoices(), configuration.getHillClimbMaxNonImprovingMoves(), neighbourhoodFunctions);
+    public HillClimber(Evaluator<U> evaluator, SolutionConverter<T, U> solutionConverter, Configuration configuration, NeighbourhoodFunction<T> neighbourhoodFunctions) {
+        this(evaluator, solutionConverter, configuration, configuration.getHillClimbChoices(), configuration.getHillClimbMaxNonImprovingMoves(), neighbourhoodFunctions);
     }
 
-    public U optimise(U candidate) {
+    public SolutionResult<T, U> optimise(Solution<T> candidate) {
         executorService = Executors.newFixedThreadPool(threads);
         int run = 0;
-        double cost = evaluate(candidate);
+        SolutionResult<T, U> result = evaluate(candidate);
+        double cost = result.getCost();
         boolean improved = false;
         int nonImprovedMoves = 0;
         while (improved || nonImprovedMoves < maxNonImprovingMoves) {
-            U newBest = threads > 1 ? findBestMultiThreaded(run, candidate, cost) : findBestSingleThreaded(run, candidate, cost);
             nonImprovedMoves++;
             improved = false;
+            SolutionResult<T, U> newBest = threads > 1 ? findBestMultiThreaded(run, result.getSolution(), cost) : findBestSingleThreaded(run, result.getSolution(), cost);
             if (newBest != null) {
-                candidate = newBest;
-                double newCost = evaluate(candidate);
+                double newCost = newBest.getCost();
                 if (newCost < cost) {
                     improved = true;
                     cost = newCost;
                     nonImprovedMoves = 0;
+                    result = newBest;
                 }
             }
             run++;
         }
         executorService.shutdown();
-        return candidate;
+        return result;
     }
 
 
-    private U findBestMultiThreaded(int run, final U candidate, double currentCost) {
-        final boolean preEvaluate = candidate instanceof PreEvaluatable;
-        List<Future<U>> futures = new ArrayList<>(choices);
-        Callable<U> callable = new Callable<U>() {
-            @Override
-            public U call() throws Exception {
-                U neighbour = getNeighbour(candidate);
-                if (preEvaluate) {
-                    ((PreEvaluatable) neighbour).preEvaluate();
-                }
-                return neighbour;
-            }
-        };
+    private SolutionResult<T, U> findBestMultiThreaded(int run, final Solution<T> candidate, double currentCost) {
+        List<Future<SolutionResult<T, U>>> futures = new ArrayList<>(choices);
+        Callable<SolutionResult<T, U>> callable = () -> evaluate(getNeighbour(candidate));
         for (int i = 0; i < choices; i++) {
             futures.add(executorService.submit(callable));
         }
-        U best = getBestFromFutures(futures);
-        double bestCost = evaluate(best);
+        SolutionResult<T, U> best = getBestFromFutures(futures);
+        double bestCost = best.getCost();
         logger.info("Run: " + run + ", neighbour cost: " + twoSf(bestCost) + ", current: " + twoSf(currentCost) + ", Solution: " + candidate);
         return bestCost <= currentCost ? best : null;
     }
 
-    private U findBestSingleThreaded(int run, U candidate, double currentCost) {
-        U best = null;
+    private SolutionResult<T, U> findBestSingleThreaded(int run, Solution<T> candidate, double currentCost) {
+        SolutionResult<T, U> best = null;
         double bestCost = Double.MAX_VALUE;
         for (int i = 0; i < choices; i++) {
-            U neighbour = getNeighbour(candidate);
-            double newCost = evaluate(neighbour);
+            Solution<T> neighbour = getNeighbour(candidate);
+            SolutionResult<T, U> newResult = evaluate(neighbour);
+            double newCost = newResult.getCost();
+            logger.debug("Choice " + i + " for " + neighbour + " has cost " + newCost);
             if (newCost < bestCost) {
                 bestCost = newCost;
-                best = neighbour;
+                best = newResult;
             }
         }
-        logger.debug("Run: " + run + ", neighbour cost: " + twoSf(bestCost) + ", current: " + twoSf(currentCost) + ", Solution: " + candidate);
+        logger.info("Run: " + run + ", neighbour cost: " + twoSf(bestCost) + ", current: " + twoSf(currentCost) + ", Solution: " + candidate);
         return bestCost <= currentCost ? best : null;
     }
 

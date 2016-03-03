@@ -1,7 +1,7 @@
 package org.burnhams.optimiser;
 
-public interface Evaluator<U, T extends Solution<U>> {
+public interface Evaluator<U> {
 
-    double evaluate(T solution);
+    double evaluate(U solutionOutput);
 
 }

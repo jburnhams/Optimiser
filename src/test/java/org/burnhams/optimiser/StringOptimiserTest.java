@@ -5,6 +5,11 @@ import org.apache.log4j.Logger;
 import org.burnhams.optimiser.algorithms.HillClimber;
 import org.burnhams.optimiser.algorithms.Optimiser;
 import org.burnhams.optimiser.algorithms.SimulatedAnnealing;
+import org.burnhams.optimiser.evaluators.TargetStringEvaluator;
+import org.burnhams.optimiser.neighbourhood.RandomSwapNeighbour;
+import org.burnhams.optimiser.solutions.Solution;
+import org.burnhams.optimiser.solutions.SolutionListOutput;
+import org.burnhams.optimiser.solutions.SolutionResult;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -17,7 +22,8 @@ public class StringOptimiserTest {
 
     public static final String HELLO_WORLD = "Hello World";
     private static Logger logger = Logger.getLogger(StringOptimiserTest.class);
-
+    private final SolutionListOutput<Character> solutionListOutput = new SolutionListOutput<>();
+    private final TargetStringEvaluator targetStringEvaluator = new TargetStringEvaluator(HELLO_WORLD);
     private Configuration configuration = new Configuration() {
         @Override
         public long getMaxIterations() {
@@ -26,7 +32,7 @@ public class StringOptimiserTest {
 
         @Override
         public int getThreads() {
-            return 2;
+            return 1;
         }
 
         public double getStartingTemperature() {
@@ -43,6 +49,7 @@ public class StringOptimiserTest {
             return 5;
         }
     };
+    private final RandomSwapNeighbour<Character> neighbour = new RandomSwapNeighbour<>(configuration);
 
     public static List<Character> stringToList(String input) {
         List<Character> chars = new ArrayList<>(input.length());
@@ -54,23 +61,24 @@ public class StringOptimiserTest {
 
     @Test
     public void shouldRearrangeHelloWorldUsingHillClimber() {
-        HillClimber<Character, Solution<Character>> hillClimber = new HillClimber<>(new TargetStringEvaluator(HELLO_WORLD), configuration);
+        HillClimber<Character, List<Character>> hillClimber = new HillClimber<>(targetStringEvaluator, solutionListOutput, configuration, neighbour);
         shouldRearrangeHelloWorld(hillClimber);
     }
 
     @Test
+
     public void shouldRearrangeHelloWorldUsingSimulatedAnnealing() {
-        SimulatedAnnealing<Character, Solution<Character>> sa = new SimulatedAnnealing<>(new TargetStringEvaluator(HELLO_WORLD), configuration);
+        SimulatedAnnealing<Character, List<Character>> sa = new SimulatedAnnealing<>(targetStringEvaluator, solutionListOutput, configuration, neighbour);
         shouldRearrangeHelloWorld(sa);
     }
 
-    public void shouldRearrangeHelloWorld(Optimiser<Character, Solution<Character>> optimiser) {
+    public void shouldRearrangeHelloWorld(Optimiser<Character, List<Character>> optimiser) {
         String target = HELLO_WORLD;
         List<Character> chars = stringToList(target);
         List<Character> correct = new ArrayList<>(chars);
         Collections.shuffle(chars);
-        Solution<Character> solution = optimiser.optimise(new Solution<>(chars));
-        assertThat(solution.getList()).isEqualTo(correct);
+        SolutionResult<Character, List<Character>> solution = optimiser.optimise(new Solution<>(chars));
+        assertThat(solution.getSolutionOutput()).isEqualTo(correct);
     }
 
     @Test
@@ -80,9 +88,9 @@ public class StringOptimiserTest {
         List<Character> correct = stringToList(target);
         logger.info("Target: " + correct);
         List<Character> chars = stringToList(actual);
-        HillClimber<Character, Solution<Character>> hillClimber = new HillClimber<>(new TargetStringEvaluator(target), configuration);
-        Solution<Character> solution = hillClimber.optimise(new Solution<>(chars));
-        assertThat(solution.getList()).isNotEqualTo(correct);
+        HillClimber<Character, List<Character>> hillClimber = new HillClimber<>(new TargetStringEvaluator(target), solutionListOutput, configuration, neighbour);
+        SolutionResult<Character, List<Character>> solution = hillClimber.optimise(new Solution<>(chars));
+        assertThat(solution.getSolutionOutput()).isNotEqualTo(correct);
     }
 
 

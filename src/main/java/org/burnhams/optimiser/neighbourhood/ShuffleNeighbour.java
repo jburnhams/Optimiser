@@ -1,17 +1,17 @@
 package org.burnhams.optimiser.neighbourhood;
 
 import org.burnhams.optimiser.Configuration;
-import org.burnhams.optimiser.Solution;
+import org.burnhams.optimiser.solutions.Solution;
 
-public class ShuffleNeighbour<T, U extends Solution<T>> extends NeighbourhoodFunction<T, U> {
+public class ShuffleNeighbour<T> extends NeighbourhoodFunction<T> {
 
     public ShuffleNeighbour(Configuration configuration) {
         super(configuration);
     }
 
     @Override
-    public U getNeighbour(U candidate) {
-        U result = (U) candidate.clone();
+    public Solution<T> getNeighbour(Solution<T> candidate) {
+        Solution<T> result = (Solution<T>) candidate.clone();
         result.shuffle();
         return result;
     }

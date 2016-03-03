@@ -1,5 +1,6 @@
 package org.burnhams.optimiser;
 
+import org.burnhams.optimiser.solutions.Solution;
 import org.junit.Test;
 
 import static com.google.common.collect.Lists.newArrayList;

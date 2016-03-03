@@ -1,11 +1,11 @@
 package org.burnhams.optimiser.neighbourhood;
 
 import org.burnhams.optimiser.Configuration;
-import org.burnhams.optimiser.Solution;
+import org.burnhams.optimiser.solutions.Solution;
 
 import java.util.Random;
 
-public abstract class NeighbourhoodFunction<T, U extends Solution<T>> {
+public abstract class NeighbourhoodFunction<T> {
 
     protected final Configuration configuration;
     protected final Random random = new Random();
@@ -14,6 +14,6 @@ public abstract class NeighbourhoodFunction<T, U extends Solution<T>> {
         this.configuration = configuration;
     }
 
-    public abstract U getNeighbour(U candidate);
+    public abstract Solution<T> getNeighbour(Solution<T> candidate);
 
 }

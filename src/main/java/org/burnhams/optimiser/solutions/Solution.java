@@ -1,14 +1,11 @@
-package org.burnhams.optimiser;
+package org.burnhams.optimiser.solutions;
 
 import com.google.common.collect.ImmutableList;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-public class Solution<T> implements Cloneable {
+public class Solution<T> extends AbstractList<T> implements Cloneable {
 
     private final T[] fixedPrefix;
     private final int fixedLength;
@@ -50,7 +47,7 @@ public class Solution<T> implements Cloneable {
         }
     }
 
-    public int totalSize() {
+    public int size() {
         return fixedLength + solution.length;
     }
 
