@@ -3,7 +3,7 @@ package org.burnhams.optimiser;
 class TestConfiguration implements Configuration {
     @Override
     public long getMaxIterations() {
-        return 100000;
+        return 10000;
     }
 
     @Override
