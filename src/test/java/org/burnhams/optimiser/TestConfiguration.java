@@ -3,7 +3,7 @@ package org.burnhams.optimiser;
 class TestConfiguration implements Configuration {
     @Override
     public long getMaxIterations() {
-        return 10000;
+        return 100;
     }
 
     @Override
@@ -13,15 +13,15 @@ class TestConfiguration implements Configuration {
 
     @Override
     public int getThreads() {
-        return 1;
+        return 4;
     }
 
-    public double getStartingTemperature() {
+    public double getStartTemperature() {
         return 100;
     }
 
     @Override
-    public double getEndingTemperature() {
+    public double getEndTemperature() {
         return 0.001;
     }
 

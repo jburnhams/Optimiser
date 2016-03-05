@@ -21,10 +21,10 @@ public class SimulatedAnnealing<T, U> extends Optimiser<T, U> {
 
     @Override
     public SolutionResult<T, U> optimise(Solution<T> candidate) {
-        double startingTemperature = configuration.getStartingTemperature();
+        double startingTemperature = configuration.getStartTemperature();
 
         long maxIterations = configuration.getMaxIterations();
-        double temperatureMultiple = Math.pow(configuration.getEndingTemperature() / startingTemperature, 1d / maxIterations);
+        double temperatureMultiple = Math.pow(configuration.getEndTemperature() / startingTemperature, 1d / maxIterations);
 
         double temperature = startingTemperature;
         Solution<T> current = candidate;

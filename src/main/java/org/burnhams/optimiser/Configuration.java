@@ -2,17 +2,17 @@ package org.burnhams.optimiser;
 
 public interface Configuration {
 
-    public int getThreads();
+    int getThreads();
 
-    public double getStartingTemperature();
+    double getStartTemperature();
 
-    public double getEndingTemperature();
+    double getEndTemperature();
 
-    public long getMaxIterations();
+    long getMaxIterations();
 
-    public boolean isAllowExtraTimeForImprovement();
+    boolean isAllowExtraTimeForImprovement();
 
-    public int getHillClimbChoices();
+    int getHillClimbChoices();
 
-    public int getMaxNonImprovingMoves();
+    int getMaxNonImprovingMoves();
 }
